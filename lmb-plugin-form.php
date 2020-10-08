@@ -3,6 +3,8 @@
  * Plugin Name: LMB Plugin Form
  * Author: Tonio Ruiz
  * Description: Plugin par crear un formulario personalizado. Utilizando el shortcode [lmb_plugin_form]
+ * License: GPL2
+ * Licence URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 // vamos a registrar lo que ocurrirá cuando se active el plugin a traves de un hook
@@ -38,9 +40,9 @@ function lmb_aspirante_init()
 // Definir el shortcode que pinta el formulario
 add_shortcode('lmb_plugin_form', 'LMB_Plugin_form');
 
- // Definir directamente la función que pintará el formulario
- function LMB_Plugin_form()
- {
+// Definir directamente la función que pintará el formulario
+function LMB_Plugin_form()
+{
     /* 
     Ya que vamos a redireccionar nuestro formulario a la misma página en la que estamos (en la que se inserta el shortcode)
     Vamos a tener que comprobar si se han enviado datos del formulario antes de volver a pintarlo, ya que si se han enviado datos
@@ -82,6 +84,7 @@ add_shortcode('lmb_plugin_form', 'LMB_Plugin_form');
     ob_start(); // abrir bufer
     ?>
     <form action="<?php get_the_permalink(); ?>" method="POST" class="cuestionario">
+        <?php wp_nonce_field('graba_aspirante', 'aspirante_nonce'); ?>
         <div class="form-input">
             <label for="nombre">Nombre</label>
             <input type="text" name="nombre" id="nombre" required>
@@ -121,4 +124,29 @@ add_shortcode('lmb_plugin_form', 'LMB_Plugin_form');
     </form>
     <?php
     return ob_get_clean(); // cerrar bufer y obtener lo que se ha escrito
- }
+}
+
+// Llamada al hook que se encarga de meter una nueva opción en el menú lateral de la administración.
+add_action("admin_menu", "LMB_Aspirante_menu");
+
+/**
+ * Agrega el menú del plugin al menú de wordpress
+ * 
+ * @return void
+ */
+function LMB_Aspirante_menu()
+{
+    // parámetro 1: Texto una vez abramos el menú de administración de nuestro plugin
+    // parámetro 2: Texto que aparecerá en el menú
+    // parámetro 3: Permisos que necesita el usuario para acceder al menú
+    // parámetro 4: El Slug que va a tener este elemento del menú
+    // parámetro 5: Función que se encargará de pintar en el interior del panel de administración
+    // parámetro 6: podemos añadirle una URL con un icono para distinguirla del resto de opciones del menú.
+    // parámetro 7: el lugar en el que aparecerá el menú (posición)
+    add_menu_page("Formulario Aspirantes", "Aspirantes", "manage_options", "lmb_aspirante_menu", "LMB_Aspirante_admin", "dashicons-feedback", 75);
+}
+
+function LMB_Aspirante_admin()
+{
+
+}
